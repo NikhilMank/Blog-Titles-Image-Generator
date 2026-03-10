@@ -21,23 +21,24 @@ import io
 from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env
+# -------------------------------
+# Load .env
+# -------------------------------
 load_dotenv()
-
-# ----------------------------------------------------
-# Configuration
-# ----------------------------------------------------
-# Get your OpenAI API key from .env 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+if not OPENAI_API_KEY:
+    st.error("❌ OpenAI API key not found! Please check your .env file.")
+    st.stop()
+
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
+# -------------------------------
+# Configuration
+# -------------------------------
 OUTPUT_DIR = "generated_headers"
-METADATA_FILE = "generation_metadata.json"
 Path(OUTPUT_DIR).mkdir(exist_ok=True)
 
-# ----------------------------------------------------
-# Brand Style
-# ----------------------------------------------------
 BRAND_STYLE = {
     "visual_identity": "modern minimalist design, clean geometric shapes, professional tech aesthetic",
     "color_palette": "deep navy blue, vibrant cyan, warm coral accents, lots of white space",
@@ -53,9 +54,9 @@ composition style and illustration technique.
 Clean modern design suitable for a professional technology blog.
 """
 
-# ----------------------------------------------------
+# -------------------------------
 # Helper Functions
-# ----------------------------------------------------
+# -------------------------------
 def build_style_prompt():
     return f"""
 Art style: {BRAND_STYLE['art_style']}
@@ -128,30 +129,23 @@ def generate_image(title):
         f.write(image_bytes)
     return filename, prompt
 
-def create_zip(files):
+def create_zip_with_metadata(files, metadata):
+    """Create a single ZIP containing all images and metadata.json"""
     zip_buffer = io.BytesIO()
     with ZipFile(zip_buffer, "w") as zip_file:
+        # Add images to folder inside ZIP
         for fpath in files:
-            zip_file.write(fpath, arcname=Path(fpath).name)
+            zip_file.write(fpath, arcname=f"images/{Path(fpath).name}")
+        # Add metadata.json
+        zip_file.writestr("metadata.json", json.dumps(metadata, indent=2))
     zip_buffer.seek(0)
     return zip_buffer
 
-def save_metadata(metadata_list):
-    """Save metadata to JSON file"""
-    metadata_path = Path(OUTPUT_DIR) / METADATA_FILE
-    with open(metadata_path, "w") as f:
-        json.dump({
-            "brand_style": BRAND_STYLE,
-            "generated_at": datetime.now().isoformat(),
-            "images": metadata_list
-        }, f, indent=2)
-    return metadata_path
-
-# ----------------------------------------------------
+# -------------------------------
 # Streamlit UI
-# ----------------------------------------------------
+# -------------------------------
 st.title("AI Blog Header Generator")
-st.markdown("Generate **cohesive header images** for your blog titles and download them all as a ZIP or metadata JSON.")
+st.markdown("Generate cohesive blog header images and download all images + metadata as a single ZIP.")
 
 blog_titles_input = st.text_area(
     "Enter one blog title per line:",
@@ -159,9 +153,9 @@ blog_titles_input = st.text_area(
     height=200
 )
 
-if st.button("Generate Headers"):
+if st.button("Generate"):
     titles = [t.strip() for t in blog_titles_input.split("\n") if t.strip()]
-    metadata = []
+    metadata_list = []
     generated_files = []
 
     progress_bar = st.progress(0)
@@ -170,10 +164,10 @@ if st.button("Generate Headers"):
             filename, prompt = generate_image(title)
             generated_files.append(filename)
             st.image(filename, caption=title)
-            metadata.append({
+            metadata_list.append({
                 "index": i + 1,
                 "title": title,
-                "filename": filename,
+                "filename": Path(filename).name,
                 "prompt": prompt,
                 "timestamp": datetime.now().isoformat()
             })
@@ -182,26 +176,12 @@ if st.button("Generate Headers"):
         except Exception as e:
             st.error(f"Error generating image '{title}': {e}")
 
-    # Save metadata file
-    metadata_path = save_metadata(metadata)
-
-    # ZIP download button
-    zip_buffer = create_zip(generated_files)
+    zip_buffer = create_zip_with_metadata(generated_files, metadata_list)
     st.download_button(
-        label="Download All Images as ZIP",
+        label="Download All Images + Metadata as ZIP",
         data=zip_buffer,
-        file_name="blog_headers.zip",
+        file_name="blog_headers_with_metadata.zip",
         mime="application/zip"
     )
 
-    # Metadata download button
-    with open(metadata_path, "rb") as f:
-        metadata_bytes = f.read()
-    st.download_button(
-        label="Download Metadata JSON",
-        data=metadata_bytes,
-        file_name=METADATA_FILE,
-        mime="application/json"
-    )
-
-    st.success("All images generated, metadata saved, and ZIP ready!")
+    st.success("All images generated and packaged in ZIP with metadata!")
