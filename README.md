@@ -1,6 +1,6 @@
 # AI Blog Header Generator
 
-Automatically generates 10 coherent, brand-consistent header images for blog titles using OpenAI's DALL-E API.
+Automatically generates coherent, brand-consistent header images for blog titles using OpenAI's image generation API. Available as both a CLI script and web application.
 
 ## 🎨 How Coherence is Achieved
 
@@ -48,7 +48,6 @@ Clean modern design suitable for a professional technology blog.
 
 Technical requirements:
 • modern blog header illustration
-• 16:9 aspect ratio
 • minimal design
 • clean background
 • no text in image
@@ -79,25 +78,47 @@ set OPENAI_API_KEY=sk-your-key-here
 # Linux/Mac
 export OPENAI_API_KEY=sk-your-key-here
 ```
-or create a .env file (copy from .env.example)
 
-3. Run the generator:
+## 💻 Usage
+
+### Option 1: Command Line Script
+Generate images for predefined blog titles:
 ```bash
 python generate_headers.py
 ```
 
+### Option 2: Web Application
+Run the Streamlit web app for interactive generation:
+```bash
+streamlit run app.py
+```
+
+**Web App Features:**
+- Enter custom blog titles (one per line)
+- Real-time image generation with progress tracking
+- Preview generated images in browser
+- Download all images + metadata as a single ZIP file
+
 ## ⚙️ Technical Implementation
 
-- **Model**: gpt-image-1 (OpenAI's image generation model - DALL-E)
-- **Image Size**: 1792x1024 (16:9 aspect ratio)
+- **Model**: gpt-image-1 (OpenAI's image generation model)
+- **Image Size**: 1024x1024 (square format)
 - **Response Format**: Base64 encoded images
 - **Rate Limiting**: 1 second delay between generations
 - **Error Handling**: Graceful failure with error logging in metadata
+- **Web Framework**: Streamlit (for web app)
 
 ## 📁 Output
 
-- `generated_headers/` - Contains all 10 PNG images
+### CLI Script (generate_headers.py)
+- `generated_headers/` - Contains all PNG images
 - `generation_metadata.json` - Full generation details for each image
+
+### Web App (app.py)
+- Real-time image preview in browser
+- `blog_headers_with_metadata.zip` - Downloadable ZIP containing:
+  - `images/` folder with all generated PNGs
+  - `metadata.json` with generation details
 
 ## 💡 Customization
 
@@ -120,12 +141,12 @@ Modify `STYLE_ANCHOR` to adjust the coherence instructions given to the AI.
 Expand the `topic_map` dictionary in extract_topic_essence to add custom visual concepts for your specific blog topics.
 
 ### Blog Titles
-Edit the `BLOG_TITLES` list to generate images for your actual blog posts.
+Edit the `BLOG_TITLES` list to generate images for your actual blog posts if you are using CLI version.
 
 ## 💰 Cost Estimation
 
-**gpt-image-1 model pricing (1792x1024):**
-- Standard quality: ~$0.08 per image → **$0.80 for 10 images**
-- HD quality: ~$0.12 per image → **$1.20 for 10 images**
+**gpt-image-1 model pricing (1024x1024):**
+- Standard quality: ~$0.04 per image
+- **Example**: 10 images = ~$0.40 per run
 
 Note: Pricing may vary. Check [OpenAI Pricing](https://openai.com/api/pricing/) for current rates.
