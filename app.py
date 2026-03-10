@@ -68,16 +68,16 @@ Composition: {BRAND_STYLE['composition']}
 
 def extract_topic_essence(title):
     topic_map = {
-        "time management": "clock, calendar, productivity symbols",
-        "artificial intelligence": "neural network, AI brain, futuristic circuits",
-        "python": "python programming, code snippets, learning programming",
-        "sustainable living": "green leaves, earth, eco friendly lifestyle",
-        "digital marketing": "analytics dashboards, marketing megaphone, social media icons",
-        "web applications": "browser window, cloud infrastructure, servers and APIs",
-        "healthy eating": "fresh vegetables, balanced healthy meal",
-        "remote work": "laptop workspace, home office environment",
-        "blockchain": "interconnected blocks, decentralized network",
-        "creative writing": "open notebook, pen, imagination symbols"
+        'time management': 'clock, calendar, productivity symbols',
+        'artificial intelligence': 'neural networks, AI brain, futuristic tech, circuit patterns, machine learning symbols, robotic elements',
+        'python': 'python logo, code snippets, programming, learning symbols, computer screen',
+        'sustainable living': 'green leaves, earth, eco-friendly symbols, recycling icons, renewable energy',
+        'digital marketing': 'social media icons, analytics graphs, megaphone, digital ads, online engagement symbols',
+        'web applications': 'browser windows, cloud architecture, servers, code snippets, scalable infrastructure, network diagrams',
+        'healthy eating': 'fresh vegetables, balanced meal, nutrition, healthy lifestyle symbols, food icons',
+        'remote work': 'laptop, home office, video call interface, digital nomad symbols, flexible workspace icons',
+        'blockchain': 'connected blocks, chain network, cryptography, decentralized symbols, digital ledger icons',
+        'creative writing': 'pen, paper, imagination symbols, storytelling, creative flow icons, literary motifs, typewriter, open book'
     }
     title_lower = title.lower()
     for key, value in topic_map.items():
@@ -103,7 +103,6 @@ Series requirement:
 
 Technical requirements:
 • modern blog header illustration
-• 16:9 aspect ratio
 • minimal design
 • clean background
 • no text in image
@@ -160,21 +159,41 @@ if st.button("Generate"):
 
     progress_bar = st.progress(0)
     for i, title in enumerate(titles):
+
+        prompt = generate_prompt(title)
+
         try:
-            filename, prompt = generate_image(title)
+            filename, _ = generate_image(title)
             generated_files.append(filename)
+
             st.image(filename, caption=title)
+
             metadata_list.append({
                 "index": i + 1,
                 "title": title,
+                "status": "success",
                 "filename": Path(filename).name,
                 "prompt": prompt,
                 "timestamp": datetime.now().isoformat()
             })
-            time.sleep(1)  # rate-limit safety
-            progress_bar.progress((i + 1) / len(titles))
+
         except Exception as e:
-            st.error(f"Error generating image '{title}': {e}")
+
+            error_message = str(e)
+
+            st.error(f"Error generating image '{title}': {error_message}")
+
+            metadata_list.append({
+                "index": i + 1,
+                "title": title,
+                "status": "error",
+                "error": error_message,
+                "prompt": prompt,
+                "timestamp": datetime.now().isoformat()
+            })
+
+        time.sleep(1)
+        progress_bar.progress((i + 1) / len(titles))
 
     zip_buffer = create_zip_with_metadata(generated_files, metadata_list)
     st.download_button(
