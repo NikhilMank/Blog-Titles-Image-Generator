@@ -1,3 +1,10 @@
+""" A script to generate AI-powered blog header images based on a defined brand style system
+    and a list of blog titles. The script uses OpenAI's image generation capabilities to 
+    create cohesive illustrations that visually represent the essence of each blog topic while
+    adhering to a consistent visual language. Metadata about the generation process is saved
+    for future reference and analysis.
+"""
+
 import openai
 import requests
 import json
