@@ -126,7 +126,6 @@ Series requirement:
 
 Technical requirements:
 • modern blog header illustration
-• 16:9 aspect ratio
 • minimal design
 • clean background
 • no text in image
