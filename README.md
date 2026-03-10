@@ -121,3 +121,11 @@ Expand the `topic_map` dictionary in extract_topic_essence to add custom visual 
 
 ### Blog Titles
 Edit the `BLOG_TITLES` list to generate images for your actual blog posts.
+
+## 💰 Cost Estimation
+
+**gpt-image-1 model pricing (1792x1024):**
+- Standard quality: ~$0.08 per image → **$0.80 for 10 images**
+- HD quality: ~$0.12 per image → **$1.20 for 10 images**
+
+Note: Pricing may vary. Check [OpenAI Pricing](https://openai.com/api/pricing/) for current rates.
