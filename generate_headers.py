@@ -160,7 +160,7 @@ def generate_image(title, index):
     response = client.images.generate(
         model="gpt-image-1",
         prompt=prompt,
-        size="1792x1024"
+        size="1024x1024"
     )
 
     image_base64 = response.data[0].b64_json
